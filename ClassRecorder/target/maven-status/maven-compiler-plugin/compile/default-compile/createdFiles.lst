@@ -1,0 +1,6 @@
+com/victorgonzcuriel/classrecorder/classes/WebSocketMsg.class
+com/victorgonzcuriel/classrecorder/web/WebController.class
+com/victorgonzcuriel/classrecorder/classes/FileData.class
+com/victorgonzcuriel/classrecorder/websocket/WebSocketConfig.class
+com/victorgonzcuriel/classrecorder/websocket/WebSocketHandler.class
+com/victorgonzcuriel/classrecorder/classes/Record.class
