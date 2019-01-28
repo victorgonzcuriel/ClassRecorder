@@ -32,4 +32,4 @@ En el ordenador:
 
 ## Licencia
 
-Este proyecto esta bajo licencia Apache 2. Consulte el [LICENSE.md](LICENSE.md) para más información.
+Este proyecto esta bajo licencia Apache 2. Consulte el [LICENSE](LICENSE) para más información.
