@@ -31,7 +31,7 @@ En el ordenador:
 * Configure el tomcat para que pueda utilizar el teclado del dispositivo (headless=false).
 
 ## Guia de uso
-Consulte el [Manual de usuario](Manual de usuario.pdf)
+Consulte el Manual de usuario.
 
 ## Licencia
 
