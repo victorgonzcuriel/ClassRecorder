@@ -30,7 +30,7 @@ En el ordenador:
 * Depliegue el war en el tomcat del equipo.
 * Configure el tomcat para que pueda utilizar el teclado del dispositivo (headless=false).
 
-##Guia de uso
+## Guia de uso
 Consulte el [Manual de usuario.pdf](Manual de usuario)
 
 ## Licencia
