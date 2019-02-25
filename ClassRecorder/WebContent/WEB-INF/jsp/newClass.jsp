@@ -151,9 +151,11 @@
 		}
 	
 		 $('#uploadId').change(function(value) {
-			 $("#fileDiv").hide()
-			 $("#paginationId").show()
 			var file = value.target.files[0];
+			var test = file.name.split('.').pop()
+			if (file.name.split('.').pop() == 'pdf'){
+			$("#fileDiv").hide()
+			$("#paginationId").show()
 			var fileReader = new FileReader();
 			fileReader.onload = function(){
 				var typedarray = new Uint8Array(this.result);
@@ -164,6 +166,9 @@
 				});	  		
 				}
 			fileReader.readAsArrayBuffer(file);
+			}else{
+				alert("El fichero no tiene extensión pdf")
+			}
 		});
 		 
 		 let isRecording = false;
