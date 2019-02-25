@@ -152,7 +152,6 @@
 	
 		 $('#uploadId').change(function(value) {
 			var file = value.target.files[0];
-			var test = file.name.split('.').pop()
 			if (file.name.split('.').pop() == 'pdf'){
 			$("#fileDiv").hide()
 			$("#paginationId").show()
