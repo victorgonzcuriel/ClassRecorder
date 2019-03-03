@@ -40,6 +40,7 @@ public class WebSocketHandler {
 		//si se ha recibido que se ha borrado un fichero, mando el mensaje para borrar fichero
 		else if(message.getAction().equals("DELETED"))
 			return new WebSocketMsg("DELETED");
+		//si esta comprobando la conexión le devuelvo un 
 	    return new WebSocketMsg("OK");
 	}
 }

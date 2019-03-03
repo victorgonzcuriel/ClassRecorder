@@ -1,7 +1,10 @@
 package com.victorgonzcuriel.classrecorder.classes;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -70,13 +73,13 @@ public class Record {
 	public boolean StartRecord() {
 		boolean result = true;
 		try {
-			//original con sonido 
-			//"ffmpeg -f alsa -i pulse -f x11grab -r 25 -s 1280x720 -i :0.0+0,24  -vcodec libx264 -preset ultrafast -threads 0 "+this.fileName+".mp4");
-
 			if (!isRecording) {
-				proc = Runtime.getRuntime().exec(
-						"ffmpeg -f x11grab -r 25 -s 1280x720 -i :0.0+0,24  -vcodec libx264 -preset ultrafast -threads 0 "+this.fileName+"_video.mp4");
-				isRecording = true;
+				//proc = Runtime.getRuntime().exec(
+				//		"ffmpeg -f x11grab -r 25 -s 1280x720 -i :0.0+0,24  -vcodec libx264 -preset ultrafast -threads 0 "+this.fileName+"_video.mp4");
+					proc = Runtime.getRuntime().exec(
+							"ffmpeg -video_size 1366x768 -framerate 25 -f x11grab -i :0.0 -v quiet "+this.fileName+"_video.mp4"
+							);
+					isRecording = true;
 			}
 		} catch (Exception e) {
 			result = false;
@@ -85,16 +88,16 @@ public class Record {
 		return result;
 	}
 
-	public boolean StopRecord() {
+	public boolean StopRecord() throws IOException, InterruptedException {
 		boolean result = true;
-		try {
-			if(isRecording && proc.isAlive()) {
-				proc.destroy();
-				isRecording = false;
+			if(isRecording) {
+					OutputStream stream = proc.getOutputStream();
+					stream.write("q".getBytes());
+					stream.flush();
+					//proc.waitFor();
+					isRecording = false;
 			}
-		} catch (Exception e) {
-			result = false;
-		}
+
 		
 		SaveClass();
 		return result;

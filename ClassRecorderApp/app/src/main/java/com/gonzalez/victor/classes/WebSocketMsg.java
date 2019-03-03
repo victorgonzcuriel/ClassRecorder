@@ -8,25 +8,15 @@ public class WebSocketMsg {
 
 
     private String action;
-
-    private FileData file;
+    private String actionInfo;
 
     public WebSocketMsg(){
         this.action = null;
-        this.file = new FileData();
     }
 
     public WebSocketMsg(String action) {
         super();
         this.action = action;
-    }
-
-
-
-    public WebSocketMsg(String action, FileData file) {
-        super();
-        this.action = action;
-        this.file = file;
     }
 
     public String getAction() {
@@ -37,12 +27,11 @@ public class WebSocketMsg {
         this.action = action;
     }
 
-    public FileData getFile() {
-        return file;
+    public String getActionInfo() {
+        return this.actionInfo;
     }
 
-    public void setFile(FileData file) {
-        this.file = file;
+    public void setActionInfo(String actionInfo) {
+        this.actionInfo = actionInfo;
     }
-
 }

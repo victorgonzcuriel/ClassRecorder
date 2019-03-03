@@ -32,7 +32,7 @@ import com.victorgonzcuriel.classrecorder.classes.Record;
 @ComponentScan("com.victorgonzcuriel.classrecorder.classes")
 public class WebController {
 	
-	@Autowired
+	//@Autowired
 	Record actualRecord;
 	//cronometro
 	StopWatch stopWatch;
@@ -116,7 +116,7 @@ public class WebController {
 	}
 	
 	@RequestMapping("/StopRecord")
-	public ResponseEntity<Object> Record() {
+	public ResponseEntity<Object> Record() throws IOException, InterruptedException {
 		//paro la grabación y el tiempo
 		if(actualRecord.IsRecording()) {
 			stopWatch.stop();
@@ -130,6 +130,7 @@ public class WebController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping("management")
 	public ModelAndView Management() {
 		List<ManagerUnit> items = GetFileList();
@@ -155,6 +156,10 @@ public class WebController {
 		
 		OldRecord recordData = null;
 		
+		//si no existen los ficheros no hago nada
+		if( !(new File(originalPath).exists()) || !(new File(jsonPath).exists()))
+			return Management();
+		
 		File newFinalFile = new File(finalPath);
 		if(newFinalFile.exists())
 			newFinalFile.delete();
@@ -168,8 +173,7 @@ public class WebController {
 			e.printStackTrace();
 		}
 		
-		String command = "ffmpeg -i " + originalPath + " -filter_complex \"";
-		int loopSize = recordData.getPauseTimeStamps().size();
+		String command = "ffmpeg -v quiet -i " + originalPath + " -filter_complex \"";
 		for (int i=0; i< recordData.getPauseTimeStamps().size(); i++) {
 			command += "[0:v]trim=" + recordData.getResumeTimeStamps().get(i) + ":" + recordData.getPauseTimeStamps().get(i) + ",setpts=N/FRAME_RATE/TB[v" + i + "]; ";
 			command += "[0:a]atrim=0" + recordData.getResumeTimeStamps().get(i) + ":" + recordData.getPauseTimeStamps().get(i) + ",asetpts=N/SR/TB[a"+ i + "]; ";
@@ -203,12 +207,16 @@ public class WebController {
 		String audioPath = audioDirectory + fileName.replaceAll(".mp4", "_audio.mp4");
 		String mixtedPath = mixtedDirectory + fileName.replaceAll(".mp4", "_mezclado.mp4");
 		
+		//si no existen los ficheros no hago nada
+		if( !(new File(videoPath).exists()) || !(new File(audioPath).exists()))
+			return Management();
+		
 		File newMixtedFile = new File(mixtedPath);
 		if(newMixtedFile.exists())
 			newMixtedFile.delete();
 		
 		try {
-			String command = "ffmpeg -i "+ videoPath +"  -i "+audioPath+" -codec copy -shortest " + mixtedPath;
+			String command = "ffmpeg -v quiet -i "+ videoPath +"  -i "+audioPath+" -codec copy -shortest " + mixtedPath;
 			Process proc = Runtime.getRuntime().exec(command);
 			
 			proc.waitFor();

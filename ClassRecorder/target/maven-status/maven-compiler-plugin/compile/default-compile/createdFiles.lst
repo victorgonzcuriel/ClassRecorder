@@ -1,6 +1,11 @@
-com/victorgonzcuriel/classrecorder/classes/WebSocketMsg.class
-com/victorgonzcuriel/classrecorder/web/WebController.class
-com/victorgonzcuriel/classrecorder/classes/FileData.class
-com/victorgonzcuriel/classrecorder/websocket/WebSocketConfig.class
+com/victorgonzcuriel/classrecorder/classes/ManagerUnit.class
+com/victorgonzcuriel/classrecorder/web/WebController$2.class
+com/victorgonzcuriel/classrecorder/classes/OldRecord.class
 com/victorgonzcuriel/classrecorder/websocket/WebSocketHandler.class
+com/victorgonzcuriel/classrecorder/classes/WebSocketMsg.class
+com/victorgonzcuriel/classrecorder/web/WebController$1.class
+com/victorgonzcuriel/classrecorder/web/WebController.class
+com/victorgonzcuriel/classrecorder/web/WebController$4.class
+com/victorgonzcuriel/classrecorder/web/WebController$3.class
+com/victorgonzcuriel/classrecorder/websocket/WebSocketConfig.class
 com/victorgonzcuriel/classrecorder/classes/Record.class

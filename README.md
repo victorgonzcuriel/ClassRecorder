@@ -22,7 +22,7 @@ ClassRecorder funciona bajo GNU Linux en el extremo web. Para poder desplegarlo,
 En el extremo móvil, ClassRecorder fuciona en cualquier dispositio android con version 26 o superior.
 
 ## Instalación
-En el dispositivo móvil:cn
+En el dispositivo móvil:
 * Instale el apk.
 * En su primera ejecución, acepte los permisos que le pide la aplicación.
 

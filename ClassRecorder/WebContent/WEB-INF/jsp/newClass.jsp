@@ -1,75 +1,60 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>-->
-<!-- <script type="text/javascript" src="${pageContext.request.contextPath }/js/pdf.js"></script>-->
-<script type="text/javascript" src="resources/js/pdf.js"></script>
-<!-- <script type="text/javascript" src="resources/js/sockjs.min.js"></script>-->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script type="text/javascript" src="resources/js/stomp.js"></script>
-<link rel="stylesheet" href="resources/css/bootstrap.min.css">
-
-<!-- jQuery library -->
-<script src="resources/js/jquery-3.2.1.min.js"></script>
-
-<!-- Latest compiled JavaScript -->
-<script src="resources/js/bootstrap.min.js"></script> 
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Clase: PresentaciÃ³n</title>
-</head>
-<style>
-.glyphicon.glyphicon-red:before {
-    content: "\25cf";
-    font-size: 1.5em;
-    color: red;
-    display: block;
-}
-
-.glyphicon.glyphicon-green:before {
-    content: "\25cf";
-    font-size: 1.5em;
-    color: green;
-    display: block;
-}
-
-</style>
-<body>
-	<div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-body">
-          <p>Clase terminada</p>
-        </div>
-        <div class="modal-footer">
-          <input type="button" class= "btn btn-primary" id="btnEnd" value="Aceptar"/>
-        </div>
-     </div>
-
-    </div>
-  </div>
-	<div>
-	<div>
-		<span id="icon-red" class="glyphicon glyphicon-red" style="margin-bottom:4px;"></span>
-		<span id="icon-green" class="glyphicon glyphicon-green" style="margin-bottom:4px;"></span> 
-	</div>
-	<div id="fileDiv" style="margin-bottom:4px;position:absolute;left:50%;margin-left:-50px;width:100px;height:100px;">
-		<input type="file" id="uploadId"/>
-	</div>
-	</div>
-
-	<div style="margin-bottom:4px;" id="paginationId">
-  		<span>
-  			PÃ¡gina: <span id="page_num"></span> / <span id="page_count"></span>
-  		</span>
-	</div>
-	<div >
-		<canvas id="the-canvas" style="padding-left: 0;padding-right: 0;margin-left: auto;margin-right: auto;display: block;width: 800px;"></canvas>
-	</div>
-	<input type="hidden" id="modelId" value='${fileName}'/>
+	<script type="text/javascript" src="resources/js/pdf.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script type="text/javascript" src="resources/js/stomp.js"></script>
+	<link rel="stylesheet" href="resources/css/bootstrap.min.css">
+	<script src="resources/js/jquery-3.2.1.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script> 
+	<head>
+		<title>Clase: Presentación</title>
+	</head>
+	<style>
+		.glyphicon.glyphicon-red:before {
+		    content: "\25cf";
+		    font-size: 1.5em;
+		    color: red;
+		    display: block;
+		}
+		
+		.glyphicon.glyphicon-green:before {
+		    content: "\25cf";
+		    font-size: 1.5em;
+		    color: green;
+		    display: block;
+		}
+	</style>
+	<body>
+		<div class="modal fade" id="myModal" role="dialog">
+		    <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-body">
+			          <p>Clase terminada</p>
+			        </div>
+			        <div class="modal-footer">
+			          <input type="button" class= "btn btn-primary" id="btnEnd" value="Aceptar"/>
+			        </div>
+				</div>
+	    	</div>
+ 		</div>
+		<div>
+			<div>
+				<span id="icon-red" class="glyphicon glyphicon-red" style="margin-bottom:4px;"></span>
+				<span id="icon-green" class="glyphicon glyphicon-green" style="margin-bottom:4px;"></span> 
+			</div>
+			<div id="fileDiv" style="margin-bottom:4px;position:absolute;left:50%;margin-left:-50px;width:100px;height:100px;">
+				<input type="file" id="uploadId"/>
+			</div>
+		</div>
+		<div style="margin-bottom:4px;" id="paginationId">
+	  		<span>
+	  			Página: <span id="page_num"></span> / <span id="page_count"></span>
+	  		</span>
+		</div>
+		<div >
+			<canvas id="the-canvas" style="padding-left: 0;padding-right: 0;margin-left: auto;margin-right: auto;display: block;width: 800px;"></canvas>
+		</div>
+		<input type="hidden" id="modelId" value='${fileName}'/>
+	</body>
 	<script type="text/javascript">
 	
 		$("#paginationId").hide();
@@ -82,11 +67,10 @@
 		
 		//conexion a websocket para mandar el nombre del fichero
 			
-	    //var socket = new SockJS('ws://localhost:8080/ClassRecorder/ws/websocket');
 	    stompClient = Stomp.client('ws://localhost:8080/ClassRecorder/ws/websocket');
 	    stompClient.connect({}, function(frame) {
 
-			stompClient.send("/crws/msg", {},JSON.stringify({action: 'NEW', file : {fileContent : 'newFile', fileName : '${fileName}'}}))
+			stompClient.send("/crws/msg", {},JSON.stringify({action: 'NEW', actionInfo: '${fileName}'}))
 			stompClient.disconnect();
 	    });
 
@@ -101,6 +85,7 @@
 		    scale = 1,
 		    canvas = document.getElementById('the-canvas'),
 		    ctx = canvas.getContext('2d');
+		//función de renderizado del pdf
 		function renderPage(num) {
 		  pageRendering = true;
 		  pdfDoc.getPage(num).then(function(page) {
@@ -166,7 +151,7 @@
 				}
 			fileReader.readAsArrayBuffer(file);
 			}else{
-				alert("El fichero no tiene extensiÃ³n pdf")
+				alert("El fichero no tiene extensión pdf")
 			}
 		});
 		 
@@ -177,7 +162,7 @@
 			stompClient = Stomp.client('ws://localhost:8080/ClassRecorder/ws/websocket');
 		    stompClient.connect({}, function(frame) {
 
-				stompClient.send("/crws/msg", {},JSON.stringify({action: 'CLASSENDED', file : {fileContent : 'fileContentPlaceHolder', fileName : '${fileName}'}}));
+				stompClient.send("/crws/msg", {},JSON.stringify({action: 'CLASSENDED', actionInfo: 'nothing'}));
 		    });
 		    
 			$.ajax({
@@ -212,6 +197,7 @@
 			});
 		}
 		
+		//Control de las ordenes
 		$(document).keydown(function(key){
 			switch(key.which){
 			//Derecha
@@ -234,5 +220,4 @@
 			
 		})
 	</script>
-</body>
 </html>

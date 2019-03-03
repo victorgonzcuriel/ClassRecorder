@@ -1,13 +1,10 @@
 package com.gonzalez.victor.classrecorderapp;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -23,6 +20,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -35,10 +35,9 @@ public class ControlActivity extends AppCompatActivity {
 
     private StompedClient client;
     private boolean isPaused = false;
-    private static final int REQUEST_CODE = 101;
     private Record record;
-    private String fileName;
     private String domain;
+    Timer pingTimer;
 
     private void closeNow() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -48,18 +47,6 @@ public class ControlActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE: {
-                if (grantResults.length > 0)
-                    if (grantResults[0] != PackageManager.PERMISSION_GRANTED){
-                        closeNow();
-                    }
-            }
-        }
-    }
 
     private byte[] ReadByteFiles(String filePath) throws IOException {
         File file = new File(filePath);
@@ -74,12 +61,15 @@ public class ControlActivity extends AppCompatActivity {
     }
 
     private void SendFile(String fileName){
-        String ngrokId = getIntent().getStringExtra((MainActivity.NGROK_CODE));
         String url = "http://"+ this.domain + "/ClassRecorder/web/RecieveFile";
         File file = new File(Environment.getExternalStorageDirectory() +
                 File.separator + "classRecorder" + File.separator + fileName);
 
-        OkHttpClient httpClient = new OkHttpClient();
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .readTimeout(20, TimeUnit.MINUTES)
+                .writeTimeout(20, TimeUnit.MINUTES)
+                .connectTimeout(20, TimeUnit.MINUTES)
+                .build();
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -90,18 +80,47 @@ public class ControlActivity extends AppCompatActivity {
                 .post(requestBody)
                 .build();
 
-        Response response;
+        Response response = null;
         try {
             response = httpClient.newCall(request).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        response.body().close();
+
         //mando mensaje al servidor de que pase actulice la pagina
         WebSocketMsg msg = new WebSocketMsg("SENDED");
         Gson gson = new Gson();
         String jsonMsg = gson.toJson(msg);
         client.send("/crws/msg", jsonMsg);
+
+        httpClient.dispatcher();
+    }
+
+    private void Connect(){
+        client = new StompedClient.StompedClientBuilder().build(("ws://" + this.domain + "/ClassRecorder/ws/websocket"));
+        client.subscribe("/subscription/sub", new StompedListener() {
+            @Override
+            public void onNotify(StompedFrame stompedFrame) {
+                final String stompedBody = stompedFrame.getStompedBody().replaceAll("\\p{C}", "");
+
+
+                WebSocketMsg msg = new Gson().fromJson(stompedBody, WebSocketMsg.class);
+                if (msg.getAction().equals("NEW")) {
+                    record = new Record(msg.getActionInfo().replace(' ', '_') + "_audio");
+                }
+                //si es para bajarse un fichero
+                else if (msg.getAction().equals("DOWNLOAD")) {
+                    SendFile(msg.getActionInfo().replaceAll(".mp4", "_audio.mp4"));
+                }
+                //borrado del fichero
+                else if (msg.getAction().equals("DELETE"))
+                    DeleteFile(msg.getActionInfo().replaceAll(".mp4", "_audio.mp4"));
+                else if (msg.getAction().equals("CLASSENDED"))
+                    ReloadActivity();
+            }
+        });
     }
 
     @Override
@@ -115,31 +134,11 @@ public class ControlActivity extends AppCompatActivity {
         final ImageButton btnStart = (ImageButton) findViewById(R.id.btnStart);
         final ImageButton btnStop = (ImageButton) findViewById(R.id.btnStop);
 
-        //miro mis permisos y si no los tengo los pido
-        int internetPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
-        int recordAudioPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-        int writeExternalStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int readExternalStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-
-        if(internetPermission != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, REQUEST_CODE);
-        }
-        if(recordAudioPermission != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_CODE);
-        }
-        if(writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
-        }
-        if(readExternalStoragePermission != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
-        }
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
 
         //lectura del id de ngrok y conexion
-
         String ngrokId = getIntent().getStringExtra((MainActivity.NGROK_CODE));
 
         if(ngrokId.length() <10)
@@ -147,28 +146,33 @@ public class ControlActivity extends AppCompatActivity {
         else
             domain = ngrokId;
 
-        client = new StompedClient.StompedClientBuilder().build(("ws://" + this.domain + "/ClassRecorder/ws/websocket"));
-        client.subscribe("/subscription/sub", new StompedListener() {
-            @Override
-            public void onNotify(StompedFrame stompedFrame) {
-                final String stompedBody = stompedFrame.getStompedBody().replaceAll("\\p{C}", "");;
+        try {
 
-                WebSocketMsg msg = new Gson().fromJson(stompedBody, WebSocketMsg.class);
-                if(msg.getAction().equals("NEW")) {
-                    record = new Record(msg.getFile().getFileName().replace(' ', '_') + "_audio");
-                    //fileName = msg.getFile().getFileName();
-                }
-                //si es para bajarse un fichero
-                else if(msg.getAction().equals("DOWNLOAD")){
-                    SendFile(msg.getFile().getFileName().replaceAll(".mp4", "_audio.mp4"));
-                }
-                //borrado del fichero
-                else if(msg.getAction().equals("DELETE"))
-                    DeleteFile(msg.getFile().getFileName().replaceAll(".mp4", "_audio.mp4"));
-                else if(msg.getAction().equals("CLASSENDED"))
-                    ReloadActivity();
-            }
-        });
+            Connect();
+        }catch(Exception ex)
+        {
+            //si hay problemas al conectar con el servidor vuelvo atras y lo notifico
+            Intent intent = new Intent();
+            intent.putExtra("output", "Compruebe el identificador de ngrok");
+            setResult(RESULT_CANCELED, intent);
+            finish();
+        }
+
+        //inicializo el timer para mandar mensajes
+        pingTimer = new Timer();
+        TimerTask pingTask = new TimerTask(){
+          @Override
+            public void run(){
+                  WebSocketMsg msg = new WebSocketMsg("OK");
+                  Gson gson = new Gson();
+                  String jsonMsg = gson.toJson(msg);
+                  client.send("/crws/msg", jsonMsg);
+
+          }
+        };
+
+        pingTimer.schedule(pingTask, 0, 1*60*1000);
+
 
         //listeners
         rightArrow.setOnClickListener(new View.OnClickListener() {
@@ -242,6 +246,8 @@ public class ControlActivity extends AppCompatActivity {
     }
 
     private void ReloadActivity(){
+        Intent intent = new Intent("Reload");
+        setResult(5, intent);
         finish();
         startActivity(getIntent());
     }
