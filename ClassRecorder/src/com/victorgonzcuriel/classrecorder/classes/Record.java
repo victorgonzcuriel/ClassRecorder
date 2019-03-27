@@ -31,6 +31,11 @@ public class Record {
 		
 		this.resumeTimeStamps = new ArrayList<String>();
 		this.pauseTimeStamps = new ArrayList<String>();
+		
+		//obtengo la resolución de la pantalla
+		GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		this.screenResolution = String.valueOf(device.getDisplayMode().getWidth()) + "x" + String.valueOf(device.getDisplayMode().getHeight());
+		
 	}
 	
 	public Record() {
