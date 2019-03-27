@@ -1,5 +1,7 @@
 package com.victorgonzcuriel.classrecorder.classes;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -18,9 +20,10 @@ public class Record {
 	//proceso de grabacion de la ffmpeg
 	private Process proc;
 	//lista con los timestamps de play
-	List<String> resumeTimeStamps;
+	private List<String> resumeTimeStamps;
 	//lista con los timestamps de pause
-	List<String> pauseTimeStamps;
+	private List<String> pauseTimeStamps;
+	private String screenResolution; 
 	
 	private static final String fileDirectory = System.getProperty("user.home") + "/ClassRecorder/clases_grabadas/";
 
@@ -35,6 +38,7 @@ public class Record {
 		//obtengo la resolución de la pantalla
 		GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		this.screenResolution = String.valueOf(device.getDisplayMode().getWidth()) + "x" + String.valueOf(device.getDisplayMode().getHeight());
+		
 		
 	}
 	
@@ -79,12 +83,11 @@ public class Record {
 		boolean result = true;
 		try {
 			if (!isRecording) {
-				//proc = Runtime.getRuntime().exec(
-				//		"ffmpeg -f x11grab -r 25 -s 1280x720 -i :0.0+0,24  -vcodec libx264 -preset ultrafast -threads 0 "+this.fileName+"_video.mp4");
-					proc = Runtime.getRuntime().exec(
-							"ffmpeg -video_size 1366x768 -framerate 25 -f x11grab -i :0.0 -v quiet "+this.fileName+"_video.mp4"
-							);
-					isRecording = true;
+				
+				proc = Runtime.getRuntime().exec(
+						"ffmpeg -video_size " + this.screenResolution + " -framerate 25 -f x11grab -i :0.0 -v quiet "+this.fileName+"_video.mp4"
+				);
+				isRecording = true;
 			}
 		} catch (Exception e) {
 			result = false;
@@ -113,3 +116,4 @@ public class Record {
 		new OldRecord(this).SaveOnFile();
 	}
 }
+

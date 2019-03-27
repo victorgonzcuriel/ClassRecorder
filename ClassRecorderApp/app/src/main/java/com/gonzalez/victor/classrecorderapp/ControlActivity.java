@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 
 import com.gonzalez.victor.classes.Record;
@@ -93,8 +94,8 @@ public class ControlActivity extends AppCompatActivity {
         WebSocketMsg msg = new WebSocketMsg("SENDED");
         Gson gson = new Gson();
         String jsonMsg = gson.toJson(msg);
-        client.send("/crws/msg", jsonMsg);
 
+        client.send("/crws/msg", jsonMsg);
         httpClient.dispatcher();
     }
 
@@ -124,9 +125,20 @@ public class ControlActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop(){
+        try {
+            client.disconnect();
+        }catch (Exception e){
+
+        }
+        super.onStop();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_control);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //layoutObjects
         final ImageButton rightArrow = (ImageButton) findViewById(R.id.btnRight);
