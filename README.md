@@ -17,7 +17,7 @@ ClassRecorder funciona bajo GNU Linux en el extremo web. Para poder desplegarlo,
 * FFMPEG: https://www.ffmpeg.org/
 * JRE 8 o superior: https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
 * Apache tomcat: https://tomcat.apache.org/
-* Ngrok: https://ngrok.com/
+* Ngrok (Opcional): https://ngrok.com/
 
 En el extremo móvil, ClassRecorder fuciona en cualquier dispositio android con version 26 o superior.
 
@@ -35,4 +35,4 @@ Consulte el Manual de usuario.
 
 ## Licencia
 
-Este proyecto esta bajo licencia Apache 2. Consulte el [LICENSE](LICENSE) para más información.
+Este proyecto esta registrado bajo licencia Apache 2. Consulte [LICENSE](LICENSE) para más información.
