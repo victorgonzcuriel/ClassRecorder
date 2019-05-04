@@ -107,12 +107,12 @@ public class Record {
 			}
 
 		
-		SaveClass();
+		saveClass();
 		return result;
 	}
 	
 	//guarda el json en un fichero
-	private void SaveClass() {
+	private void saveClass() {
 		new OldRecord(this).saveOnFile();
 	}
 }

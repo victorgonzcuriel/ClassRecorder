@@ -40,6 +40,12 @@ public class ControlActivity extends AppCompatActivity {
     private String domain;
     Timer pingTimer;
 
+    //layoutObjects
+    private ImageButton rightArrow = null;
+    private ImageButton leftArrow = null;
+    private ImageButton btnStart = null;
+    private ImageButton btnStop = null;
+
     private void closeNow() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             finishAffinity();
@@ -141,10 +147,10 @@ public class ControlActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //layoutObjects
-        final ImageButton rightArrow = (ImageButton) findViewById(R.id.btnRight);
-        final ImageButton leftArrow = (ImageButton) findViewById(R.id.btnLeft);
-        final ImageButton btnStart = (ImageButton) findViewById(R.id.btnStart);
-        final ImageButton btnStop = (ImageButton) findViewById(R.id.btnStop);
+        this.rightArrow = (ImageButton) findViewById(R.id.btnRight);
+        this.leftArrow = (ImageButton) findViewById(R.id.btnLeft);
+        this.btnStart = (ImageButton) findViewById(R.id.btnStart);
+        this.btnStop = (ImageButton) findViewById(R.id.btnStop);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
@@ -172,14 +178,14 @@ public class ControlActivity extends AppCompatActivity {
         //inicializo el timer para mandar mensajes
         pingTimer = new Timer();
         TimerTask pingTask = new TimerTask(){
-          @Override
+            @Override
             public void run(){
-                  WebSocketMsg msg = new WebSocketMsg("OK");
-                  Gson gson = new Gson();
-                  String jsonMsg = gson.toJson(msg);
-                  client.send("/crws/msg", jsonMsg);
+                WebSocketMsg msg = new WebSocketMsg("OK");
+                Gson gson = new Gson();
+                String jsonMsg = gson.toJson(msg);
+                client.send("/crws/msg", jsonMsg);
 
-          }
+            }
         };
 
         pingTimer.schedule(pingTask, 0, 1*60*1000);
@@ -257,9 +263,7 @@ public class ControlActivity extends AppCompatActivity {
     }
 
     private void reloadActivity(){
-        Intent intent = new Intent("Reload");
-        setResult(5, intent);
-        finish();
-        startActivity(getIntent());
+        btnStart.setImageResource(R.mipmap.play);
+        btnStop.setVisibility(View.INVISIBLE);
     }
 }

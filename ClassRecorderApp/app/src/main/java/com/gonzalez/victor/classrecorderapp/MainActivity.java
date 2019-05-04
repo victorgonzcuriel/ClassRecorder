@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         .setMessage(data.getStringExtra("output"))
                         .show();
             }
-            //si devuelve un 5, hay qu recargar otra vez
+            //si devuelve un 5, hay que recargar otra vez
             else if(resultCode == 5){
                 connectButton.performClick();
             }
