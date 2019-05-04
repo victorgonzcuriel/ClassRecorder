@@ -51,12 +51,12 @@ public class Record {
 		return isPaused;
 	}
 	
-	public void AddResumeTimeStamp(String input) {
+	public void addResumeTimeStamp(String input) {
 		this.resumeTimeStamps.add(input);
 		this.isPaused = false;
 	}
 	
-	public void AddPauseTimeStamp(String input) {
+	public void addPauseTimeStamp(String input) {
 		this.pauseTimeStamps.add(input);
 		this.isPaused = true;
 	}
@@ -71,15 +71,15 @@ public class Record {
 		return pauseTimeStamps;
 	}
 
-	public String GetFilename() {
+	public String getFilename() {
 		return this.fileName;
 	}
 
-	public boolean IsRecording() {
+	public boolean isRecording() {
 		return isRecording;
 	}
 
-	public boolean StartRecord() {
+	public boolean startRecord() {
 		boolean result = true;
 		try {
 			if (!isRecording) {
@@ -96,7 +96,7 @@ public class Record {
 		return result;
 	}
 
-	public boolean StopRecord() throws IOException, InterruptedException {
+	public boolean stopRecord() throws IOException, InterruptedException {
 		boolean result = true;
 			if(isRecording) {
 					OutputStream stream = proc.getOutputStream();
@@ -113,7 +113,6 @@ public class Record {
 	
 	//guarda el json en un fichero
 	private void SaveClass() {
-		new OldRecord(this).SaveOnFile();
+		new OldRecord(this).saveOnFile();
 	}
 }
-

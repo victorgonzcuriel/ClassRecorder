@@ -17,7 +17,7 @@ public class OldRecord {
 	private List<String> pauseTimeStamps;
 	
 	public OldRecord(Record input) {
-		this.fileName = input.GetFilename();
+		this.fileName = input.getFilename();
 		this.resumeTimeStamps = input.getResumeTimeStamps();
 		this.pauseTimeStamps = input.getPauseTimeStamps();
 	}
@@ -51,7 +51,7 @@ public class OldRecord {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void SaveOnFile() {
+	public void saveOnFile() {
 		JSONObject jsonObject = new JSONObject();
 		JSONArray resumeArray = new JSONArray();
 		JSONArray pauseArray = new JSONArray();

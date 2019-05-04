@@ -40,7 +40,7 @@ public class Record {
         mediaRecorder.setOutputFile(this.fileName);
     }
 
-    public void StartRecording(){
+    public void startRecording(){
         try {
             mediaRecorder.prepare();
             mediaRecorder.start();
@@ -51,7 +51,7 @@ public class Record {
 
     }
 
-    public void StopRecording(){
+    public void stopRecording(){
         mediaRecorder.stop();
         this.isRecording = false;
     }

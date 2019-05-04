@@ -23,11 +23,12 @@ En el extremo móvil, Class Recorder fuciona en cualquier dispositio android con
 
 ## Instalación
 En el dispositivo móvil:
+* Habilite la instalación de aplicaciones de origenes desconocidos (Ajustes => Seguridad => Seleccionar orígenes desconocidos)
 * Instale el apk.
 * En su primera ejecución, acepte los permisos que le pide la aplicación.
 
 En el ordenador:
-* Depliegue el war en el tomcat del equipo.
+* Depliegue el war en el Tomcat del equipo.
 * Configure el tomcat para que pueda utilizar el teclado del dispositivo (headless=false).
 
 ## Guia de uso

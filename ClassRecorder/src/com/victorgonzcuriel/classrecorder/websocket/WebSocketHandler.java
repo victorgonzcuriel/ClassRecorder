@@ -35,7 +35,7 @@ public class WebSocketHandler {
 				|| message.getAction().equals("DELETE") || message.getAction().equals("CLASSENDED"))
 			return message;
 		//si es que se ha recibido un fichero, mando mensaje para recargar pagina
-		else if(message.getAction().equals("SENDED"))
+		else if(message.getAction().equals("SENT"))
 			return new WebSocketMsg("RELOAD");
 		//si se ha recibido que se ha borrado un fichero, mando el mensaje para borrar fichero
 		else if(message.getAction().equals("DELETED"))

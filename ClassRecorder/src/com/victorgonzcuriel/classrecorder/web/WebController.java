@@ -9,12 +9,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.time.StopWatch;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,8 @@ public class WebController {
 	private static final String mixtedDirectory = System.getProperty("user.home") + "/ClassRecorder/clases_mezcladas/";
 	private static final String finalDirectory = System.getProperty("user.home") + "/ClassRecorder/clases_finales/";
 
-	private void CreateDirectories() {
+	@PostConstruct
+	private void createDirectories() {
 		File filePath = new File(fileDirectory);
 		if(!filePath.exists()) {
 			filePath.mkdirs();
@@ -63,7 +65,7 @@ public class WebController {
 	
 	@RequestMapping("/RecieveFile")
 	
-	public ResponseEntity<?> RecieveFile(@RequestParam("file") MultipartFile fileData) {
+	public ResponseEntity<?> recieveFile(@RequestParam("file") MultipartFile fileData) {
 		
 		try {
 			byte[] binaryData = fileData.getBytes();
@@ -83,7 +85,6 @@ public class WebController {
 	
 	@RequestMapping("/")
 	public ModelAndView index() {
-		CreateDirectories();
 		return new ModelAndView("index");
 	}
 	
@@ -96,34 +97,34 @@ public class WebController {
 	}
 	
 	@RequestMapping("Play")
-	public ResponseEntity<Object> Play(){
+	public ResponseEntity<Object> play(){
 		//si no esta grabado lo pongo a grabar
 		//meto el timestamp del tiempo 0 para mantener la coherencia de las listas
-		if(!actualRecord.IsRecording()) {
-			actualRecord.StartRecord();
-			actualRecord.AddResumeTimeStamp("0");
+		if(!actualRecord.isRecording()) {
+			actualRecord.startRecord();
+			actualRecord.addResumeTimeStamp("0");
 			stopWatch.start();
 		}
 		else {
 			//en función de si esta o no en pausa, paso el tiempo a un
 			if(actualRecord.isPaused())
-				actualRecord.AddResumeTimeStamp(Long.toString(stopWatch.getTime(TimeUnit.SECONDS)));
+				actualRecord.addResumeTimeStamp(Long.toString(stopWatch.getTime(TimeUnit.SECONDS)));
 			else
-				actualRecord.AddPauseTimeStamp(Long.toString(stopWatch.getTime(TimeUnit.SECONDS)));
+				actualRecord.addPauseTimeStamp(Long.toString(stopWatch.getTime(TimeUnit.SECONDS)));
 		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@RequestMapping("/StopRecord")
-	public ResponseEntity<Object> Record() throws IOException, InterruptedException {
+	public ResponseEntity<Object> stopRecord() throws IOException, InterruptedException {
 		//paro la grabación y el tiempo
-		if(actualRecord.IsRecording()) {
+		if(actualRecord.isRecording()) {
 			stopWatch.stop();
 			//si no esta pausado, pongo el tiempo del final del video en la cola de pausa
 			if(!actualRecord.isPaused())
-				actualRecord.AddPauseTimeStamp(Long.toString(stopWatch.getTime(TimeUnit.SECONDS)));
-			actualRecord.StopRecord();
+				actualRecord.addPauseTimeStamp(Long.toString(stopWatch.getTime(TimeUnit.SECONDS)));
+			actualRecord.stopRecord();
 
 
 		}
@@ -132,8 +133,8 @@ public class WebController {
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping("management")
-	public ModelAndView Management() {
-		List<ManagerUnit> items = GetFileList();
+	public ModelAndView management() {
+		List<ManagerUnit> items = getFileList();
 		ModelAndView model = new ModelAndView("management");
 		
 		JSONArray jsonArray = new JSONArray();
@@ -148,7 +149,7 @@ public class WebController {
 	}
 	
 	@RequestMapping("cut")
-	public ModelAndView CutVideo(@RequestParam("fileName") String fileName) {
+	public ModelAndView cutVideo(@RequestParam("fileName") String fileName) {
 		
 		String originalPath = mixtedDirectory + fileName.replaceAll(".mp4", "_mezclado.mp4");
 		String finalPath = finalDirectory + fileName;
@@ -158,7 +159,7 @@ public class WebController {
 		
 		//si no existen los ficheros no hago nada
 		if( !(new File(originalPath).exists()) || !(new File(jsonPath).exists()))
-			return Management();
+			return management();
 		
 		File newFinalFile = new File(finalPath);
 		if(newFinalFile.exists())
@@ -196,11 +197,11 @@ public class WebController {
 			e.printStackTrace();
 		}
 		
-		return Management();
+		return management();
 	}
 	
 	@RequestMapping("mix")
-	public ModelAndView MixVideos(@RequestParam("fileName") String fileName)
+	public ModelAndView mixVideos(@RequestParam("fileName") String fileName)
 	{
 		
 		String videoPath = fileDirectory + fileName.replaceAll(".mp4", "_video.mp4");
@@ -209,7 +210,7 @@ public class WebController {
 		
 		//si no existen los ficheros no hago nada
 		if( !(new File(videoPath).exists()) || !(new File(audioPath).exists()))
-			return Management();
+			return management();
 		
 		File newMixtedFile = new File(mixtedPath);
 		if(newMixtedFile.exists())
@@ -225,20 +226,20 @@ public class WebController {
 			e.printStackTrace();
 		}
 		
-		return Management();
+		return management();
 	}
 	
 	@RequestMapping("DoAll")
-	public ModelAndView DoAll(@RequestParam("fileName") String fileName) {
+	public ModelAndView doAll(@RequestParam("fileName") String fileName) {
 		
-		MixVideos(fileName);
-		CutVideo(fileName);
+		mixVideos(fileName);
+		cutVideo(fileName);
 		
-		return Management();
+		return management();
 	}
 	
 	@RequestMapping("DeleteFile")
-	public ModelAndView DeleteFile(@RequestParam("fileName") String fileName) {
+	public ModelAndView deleteFile(@RequestParam("fileName") String fileName) {
 		
 		String videoPath = fileDirectory + fileName.replaceAll(".mp4", "_video.mp4");
 		String audioPath = audioDirectory + fileName.replaceAll(".mp4", "_audio.mp4");
@@ -266,10 +267,10 @@ public class WebController {
 		if(file.exists())
 			file.delete();
 		
-		return Management();
+		return management();
 	}
 
-	private List<ManagerUnit> GetFileList() {
+	private List<ManagerUnit> getFileList() {
 		List<ManagerUnit> output = new ArrayList<ManagerUnit>();
 		
 		File filePath = new File(fileDirectory);

@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     Button connectButton = null;
 
     //función para controlar los progress bar
-    private void SetOkStatus(boolean isOk)
+    private void setOkStatus(boolean isOk)
     {
         if(isOk){
             redCircle.setVisibility(View.INVISIBLE);
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        CheckPermissions();
+        checkPermissions();
 
         //layout objects
         connectButton = findViewById(R.id.connectButton);
@@ -58,16 +58,16 @@ public class MainActivity extends AppCompatActivity {
         connectButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 redCircle.setVisibility(View.INVISIBLE);
-                if(Connect(txtBoxNgokId.getText().toString())){
-                    SetOkStatus(true);
+                if(connect(txtBoxNgokId.getText().toString())){
+                    setOkStatus(true);
                 }else{
-                    SetOkStatus(false);
+                    setOkStatus(false);
                 }
             }
         });
     }
 
-    private boolean Connect(String ngrokId){
+    private boolean connect(String ngrokId){
 
         Intent intent = new Intent(this, ControlActivity.class);
         EditText ngrokEditText = (EditText) findViewById(R.id.txtBoxNgokId);
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void CheckPermissions(){
+    private void checkPermissions(){
         //miro mis permisos y si no los tengo los pido
         int internetPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
         int recordAudioPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        CheckPermissions();
+        checkPermissions();
     }
 
     private void closeNow() {
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         //Si hay problemas al conectar con el servidor lo notifico
         if(requestCode == RESULT_FIRST_USER) {
             if (resultCode == RESULT_CANCELED) {
-                SetOkStatus(false);
+                setOkStatus(false);
                 new AlertDialog.Builder(this)
                         .setMessage(data.getStringExtra("output"))
                         .show();

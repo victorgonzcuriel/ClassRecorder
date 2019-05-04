@@ -49,7 +49,7 @@ public class ControlActivity extends AppCompatActivity {
     }
 
 
-    private byte[] ReadByteFiles(String filePath) throws IOException {
+    private byte[] readByteFiles(String filePath) throws IOException {
         File file = new File(filePath);
         int size = (int) file.length();
         byte[] output = new byte[size];
@@ -61,7 +61,7 @@ public class ControlActivity extends AppCompatActivity {
         return output;
     }
 
-    private void SendFile(String fileName){
+    private void sendFile(String fileName){
         String url = "http://"+ this.domain + "/ClassRecorder/web/RecieveFile";
         File file = new File(Environment.getExternalStorageDirectory() +
                 File.separator + "classRecorder" + File.separator + fileName);
@@ -91,7 +91,7 @@ public class ControlActivity extends AppCompatActivity {
         response.body().close();
 
         //mando mensaje al servidor de que pase actulice la pagina
-        WebSocketMsg msg = new WebSocketMsg("SENDED");
+        WebSocketMsg msg = new WebSocketMsg("SENT");
         Gson gson = new Gson();
         String jsonMsg = gson.toJson(msg);
 
@@ -99,7 +99,7 @@ public class ControlActivity extends AppCompatActivity {
         httpClient.dispatcher();
     }
 
-    private void Connect(){
+    private void connect(){
         client = new StompedClient.StompedClientBuilder().build(("ws://" + this.domain + "/ClassRecorder/ws/websocket"));
         client.subscribe("/subscription/sub", new StompedListener() {
             @Override
@@ -113,13 +113,13 @@ public class ControlActivity extends AppCompatActivity {
                 }
                 //si es para bajarse un fichero
                 else if (msg.getAction().equals("DOWNLOAD")) {
-                    SendFile(msg.getActionInfo().replaceAll(".mp4", "_audio.mp4"));
+                    sendFile(msg.getActionInfo().replaceAll(".mp4", "_audio.mp4"));
                 }
                 //borrado del fichero
                 else if (msg.getAction().equals("DELETE"))
-                    DeleteFile(msg.getActionInfo().replaceAll(".mp4", "_audio.mp4"));
+                    deleteAudioFile(msg.getActionInfo().replaceAll(".mp4", "_audio.mp4"));
                 else if (msg.getAction().equals("CLASSENDED"))
-                    ReloadActivity();
+                    reloadActivity();
             }
         });
     }
@@ -159,8 +159,7 @@ public class ControlActivity extends AppCompatActivity {
             domain = ngrokId;
 
         try {
-
-            Connect();
+            connect();
         }catch(Exception ex)
         {
             //si hay problemas al conectar con el servidor vuelvo atras y lo notifico
@@ -227,7 +226,7 @@ public class ControlActivity extends AppCompatActivity {
 
                 //miro si no esta grabando para ponerlo a grabar
                 if(!record.isRecording())
-                    record.StartRecording();
+                    record.startRecording();
 
                 btnStop.setVisibility(View.VISIBLE);
 
@@ -241,12 +240,12 @@ public class ControlActivity extends AppCompatActivity {
                 WebSocketMsg msg = new WebSocketMsg("STOP");
                 String jsonMsg = new Gson().toJson(msg);
                 client.send("/crws/msg", jsonMsg);;
-                record.StopRecording();
+                record.stopRecording();
             }
         });
     }
 
-    private void DeleteFile(String fileName){
+    private void deleteAudioFile(String fileName){
         File file = new File(Environment.getExternalStorageDirectory() +
                 File.separator + "classRecorder" + File.separator + fileName);
         if(file.exists())
@@ -257,7 +256,7 @@ public class ControlActivity extends AppCompatActivity {
         client.send("/crws/msg", jsonMsg);
     }
 
-    private void ReloadActivity(){
+    private void reloadActivity(){
         Intent intent = new Intent("Reload");
         setResult(5, intent);
         finish();
