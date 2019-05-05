@@ -102,7 +102,6 @@ public class Record {
 					OutputStream stream = proc.getOutputStream();
 					stream.write("q".getBytes());
 					stream.flush();
-					//proc.waitFor();
 					isRecording = false;
 			}
 
